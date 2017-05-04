@@ -1,0 +1,7 @@
+<fragment xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_main"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="br.com.alexgutler.bollymovies.MainFragment"
+    tools:layout="@layout/fragment_main" />
