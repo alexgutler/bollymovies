@@ -1,5 +1,7 @@
 package br.com.alexgutler.bollymovies;
 
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +15,14 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,13 +57,6 @@ public class MainFragment extends Fragment
 
         final ArrayList<Filme> arrayList = new ArrayList<>();
 
-        arrayList.add(new Filme("Homem Aranha", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.", "18/03/2000", 3.5f));
-        arrayList.add(new Filme("Homem Cobra", "Filme de herói sobre o cobra", "19/05/2000", 4));
-        arrayList.add(new Filme("Homem Javali", "Filme de herói sobre o javali", "25/06/2000", 2));
-        arrayList.add(new Filme("Homem Passáro", "Filme de herói sobre o passáro", "03/07/2000", 1));
-        arrayList.add(new Filme("Homem Galinha", "Filme de herói sobre o galinha", "14/08/2000", 5));
-        arrayList.add(new Filme("Homem Cachorro", "Filme de herói sobre o cachorro", "21/09/2000", 4.5f));
-
         adapter = new FilmeAdapter(getContext(), arrayList);
         adapter.setUseFilmeDestaque(useFilmeDestaque);
 
@@ -75,6 +77,8 @@ public class MainFragment extends Fragment
         if (savedInstanceState != null && savedInstanceState.containsKey(KEY_POSITION)) {
             posicaoItem = savedInstanceState.getInt(KEY_POSITION);
         }
+
+        new FilmesAsyncTask().execute();
 
         return view;
     }
@@ -113,6 +117,73 @@ public class MainFragment extends Fragment
             default:
                 return super.onOptionsItemSelected(item);
 
+        }
+    }
+
+
+    public class FilmesAsyncTask extends AsyncTask<Void, Void, List<Filme>> {
+
+        @Override
+        protected List<Filme> doInBackground(Void... voids) {
+            // https://api.themoviedb.org/3/movie/popular?api_key=a2e06666ad01fc50e901c9ca1dbf8637&language=pt-BR
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+
+            try {
+                String urlBase = "https://api.themoviedb.org/3/movie/popular?";
+                String apiKey = "api_key";
+                String language = "language";
+
+                Uri uriApi = Uri.parse(urlBase).buildUpon()
+                        .appendQueryParameter(apiKey, BuildConfig.TMDB_API_KEY)
+                        .appendQueryParameter(language, "pt-BR")
+                        .build();
+
+                URL url = new URL(uriApi.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                if (inputStream == null) {
+                    return null;
+                }
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String linha;
+                StringBuffer buffer = new StringBuffer();
+
+                while ((linha = reader.readLine()) != null) {
+                    buffer.append(linha);
+                    buffer.append("\n"); // pular para próxima
+                }
+
+                return JsonUtil.fromJsonToList(buffer.toString());
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(List<Filme> filmes) {
+            adapter.clear();
+            adapter.addAll(filmes);
+            adapter.notifyDataSetChanged();
         }
     }
 
