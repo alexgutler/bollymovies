@@ -24,6 +24,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+// https://image.tmdb.org/t/p/w500/kqjL17yufvn9OVLyXYpvtyrFfak.jpg
+// https://api.themoviedb.org/3/movie/popular?api_key=a2e06666ad01fc50e901c9ca1dbf8637&language=pt-BR
+// https://developers.themoviedb.org/3/getting-started
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -112,6 +116,7 @@ public class MainFragment extends Fragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_atualizar:
+                new FilmesAsyncTask().execute();
                 Toast.makeText(getContext(), "Atualizando os filmes...", Toast.LENGTH_SHORT).show();
                 return true;
             default:
@@ -125,7 +130,7 @@ public class MainFragment extends Fragment
 
         @Override
         protected List<Filme> doInBackground(Void... voids) {
-            // https://api.themoviedb.org/3/movie/popular?api_key=a2e06666ad01fc50e901c9ca1dbf8637&language=pt-BR
+
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 

@@ -39,6 +39,11 @@ public class FilmeAdapter extends ArrayAdapter<Filme>
                 RatingBar avaliacao = (RatingBar) itemView.findViewById(R.id.item_rating);
                 avaliacao.setRating(filme.getAvaliacao());
 
+                // recupera o ImageView da capa
+                ImageView capa = (ImageView) itemView.findViewById(R.id.item_capa);
+                // fazer o download da imagem e setar no ImageView passando o path como parâmetro para execução
+                new DownloadImageTask(capa).execute(filme.getCapaPath());
+
                 break;
             }
             case VIEW_TYPE_ITEM: {
@@ -56,6 +61,9 @@ public class FilmeAdapter extends ArrayAdapter<Filme>
                 holder.descricao.setText(filme.getDescricao());
                 holder.data.setText(filme.getDataLancamento());
                 holder.avaliacao.setRating(filme.getAvaliacao());
+
+                // fazer o download da imagem e setar no ImageView passando o path como parâmetro para execução
+                new DownloadImageTask(holder.poster).execute(filme.getPosterPath());
 
                 break;
             }

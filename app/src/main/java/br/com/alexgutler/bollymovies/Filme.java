@@ -58,6 +58,16 @@ public class Filme implements Serializable
         this.avaliacao = (float) jsonObject.getDouble("vote_average");
     }
 
+    // https://image.tmdb.org/t/p/w500/kqjL17yufvn9OVLyXYpvtyrFfak.jpg
+    private String buildPath(String width, String path)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("https://image.tmdb.org/t/p/")
+                .append(width)
+                .append(path);
+        return builder.toString();
+    }
+
     public long getId() {
         return id;
     }
@@ -91,7 +101,7 @@ public class Filme implements Serializable
     }
 
     public String getPosterPath() {
-        return posterPath;
+        return buildPath("w500", posterPath);
     }
 
     public void setPosterPath(String posterPath) {
@@ -99,7 +109,7 @@ public class Filme implements Serializable
     }
 
     public String getCapaPath() {
-        return capaPath;
+        return buildPath("w780", capaPath);
     }
 
     public void setCapaPath(String capaPath) {

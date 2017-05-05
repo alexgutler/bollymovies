@@ -15,7 +15,7 @@
         android:layout_weight="3">
 
         <ImageView
-            android:id="@+id/item_poster"
+            android:id="@+id/item_capa"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/capa"

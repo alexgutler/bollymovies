@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -48,6 +49,15 @@ public class FilmeDetalheFragment extends Fragment
 
         RatingBar rating = (RatingBar) view.findViewById(R.id.item_rating);
         rating.setRating(filme.getAvaliacao());
+
+        ImageView capa = (ImageView) view.findViewById(R.id.item_capa);
+        // fazer o download da imagem e setar no ImageView passando o path como parâmetro para execução
+        new DownloadImageTask(capa).execute(filme.getCapaPath());
+
+        if (view.findViewById(R.id.item_poster) != null) {
+            ImageView poster = (ImageView) view.findViewById(R.id.item_poster);
+            new DownloadImageTask(poster).execute(filme.getPosterPath());
+        }
 
         return  view;
     }
