@@ -4,13 +4,25 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.support.annotation.Nullable;
+import android.preference.PreferenceManager;
 
-public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener
-{
+public class SettingsActivity extends PreferenceActivity implements Preference.OnPreferenceChangeListener {
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.prefs_geral);
+
+        bindPreferenceSummary(findPreference(getString(R.string.prefs_ordem_key)));
+        bindPreferenceSummary(findPreference(getString(R.string.prefs_idioma_key)));
+    }
+
+    private void bindPreferenceSummary(Preference preference) {
+
+        preference.setOnPreferenceChangeListener(this);
+
+        onPreferenceChange(preference, PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString(preference.getKey(), ""));
+
     }
 
     @Override
