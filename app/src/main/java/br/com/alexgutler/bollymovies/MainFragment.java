@@ -1,7 +1,9 @@
 package br.com.alexgutler.bollymovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +30,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.alexgutler.bollymovies.data.FilmesContract;
+import br.com.alexgutler.bollymovies.data.FilmesDBHelper;
+
 // https://image.tmdb.org/t/p/w500/kqjL17yufvn9OVLyXYpvtyrFfak.jpg
 // https://api.themoviedb.org/3/movie/popular?api_key=a2e06666ad01fc50e901c9ca1dbf8637&language=pt-BR
 // https://developers.themoviedb.org/3/getting-started
@@ -42,6 +47,7 @@ public class MainFragment extends Fragment
     private ListView list;
     private boolean useFilmeDestaque = false;
     private FilmeAdapter adapter;
+    private FilmesDBHelper filmesDBHelper;
 
     public MainFragment() {
         // Required empty public constructor
@@ -85,6 +91,8 @@ public class MainFragment extends Fragment
         if (savedInstanceState != null && savedInstanceState.containsKey(KEY_POSITION)) {
             posicaoItem = savedInstanceState.getInt(KEY_POSITION);
         }
+
+        filmesDBHelper = new FilmesDBHelper(getContext());
 
         new FilmesAsyncTask().execute();
 
@@ -200,6 +208,26 @@ public class MainFragment extends Fragment
 
         @Override
         protected void onPostExecute(List<Filme> filmes) {
+            SQLiteDatabase writableDatabase = filmesDBHelper.getWritableDatabase();
+            for (Filme filme : filmes) {
+                ContentValues values = new ContentValues();
+                values.put(FilmesContract.FilmeEntry._ID, filme.getId());
+                values.put(FilmesContract.FilmeEntry.COLUMN_TITULO, filme.getTitulo());
+                values.put(FilmesContract.FilmeEntry.COLUMN_DESCRICAO, filme.getDescricao());
+                values.put(FilmesContract.FilmeEntry.COLUMN_POSTER_PATH, filme.getPosterPath());
+                values.put(FilmesContract.FilmeEntry.COLUMN_CAPA_PATH, filme.getCapaPath());
+                values.put(FilmesContract.FilmeEntry.COLUMN_AVALIACAO, filme.getAvaliacao());
+
+                String where = FilmesContract.FilmeEntry._ID + "=?";
+                String[] whereValues = new String[] {String.valueOf(filme.getId())};
+
+                int update = writableDatabase.update(FilmesContract.FilmeEntry.TABLE_NAME, values, where, whereValues);
+
+                if (update == 0) {
+                    writableDatabase.insert(FilmesContract.FilmeEntry.TABLE_NAME, null, values);
+                }
+            }
+
             adapter.clear();
             adapter.addAll(filmes);
             adapter.notifyDataSetChanged();
