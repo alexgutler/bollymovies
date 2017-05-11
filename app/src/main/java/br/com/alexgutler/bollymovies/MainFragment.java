@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -150,11 +149,8 @@ public class MainFragment extends Fragment
             BufferedReader reader = null;
 
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-            String ordem = preferences.getString(getString(R.string.prefs_ordem_key), "");
-            String idioma = preferences.getString(getString(R.string.prefs_idioma_key), "");
-
-            Log.d("prefs", "Ordem: " + ordem);
-            Log.d("prefs", "Idioma: " + idioma);
+            String ordem = preferences.getString(getString(R.string.prefs_ordem_key), "popular");
+            String idioma = preferences.getString(getString(R.string.prefs_idioma_key), "pt-BR");
 
             try {
                 String urlBase = "https://api.themoviedb.org/3/movie/"+ordem+"?";
@@ -209,6 +205,7 @@ public class MainFragment extends Fragment
         @Override
         protected void onPostExecute(List<Filme> filmes) {
             SQLiteDatabase writableDatabase = filmesDBHelper.getWritableDatabase();
+
             for (Filme filme : filmes) {
                 ContentValues values = new ContentValues();
                 values.put(FilmesContract.FilmeEntry._ID, filme.getId());
