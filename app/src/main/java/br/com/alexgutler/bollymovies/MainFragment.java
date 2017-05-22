@@ -46,7 +46,6 @@ public class MainFragment extends Fragment
     private ListView list;
     private boolean useFilmeDestaque = false;
     private FilmeAdapter adapter;
-    private FilmesDBHelper filmesDBHelper;
 
     public MainFragment() {
         // Required empty public constructor
@@ -90,8 +89,6 @@ public class MainFragment extends Fragment
         if (savedInstanceState != null && savedInstanceState.containsKey(KEY_POSITION)) {
             posicaoItem = savedInstanceState.getInt(KEY_POSITION);
         }
-
-        filmesDBHelper = new FilmesDBHelper(getContext());
 
         new FilmesAsyncTask().execute();
 
@@ -204,8 +201,6 @@ public class MainFragment extends Fragment
 
         @Override
         protected void onPostExecute(List<Filme> filmes) {
-            SQLiteDatabase writableDatabase = filmesDBHelper.getWritableDatabase();
-
             for (Filme filme : filmes) {
                 ContentValues values = new ContentValues();
                 values.put(FilmesContract.FilmeEntry._ID, filme.getId());
@@ -218,10 +213,10 @@ public class MainFragment extends Fragment
                 String where = FilmesContract.FilmeEntry._ID + "=?";
                 String[] whereValues = new String[] {String.valueOf(filme.getId())};
 
-                int update = writableDatabase.update(FilmesContract.FilmeEntry.TABLE_NAME, values, where, whereValues);
+                int update = getContext().getContentResolver().update(FilmesContract.FilmeEntry.CONTENT_URI, values, where, whereValues);
 
                 if (update == 0) {
-                    writableDatabase.insert(FilmesContract.FilmeEntry.TABLE_NAME, null, values);
+                    getContext().getContentResolver().insert(FilmesContract.FilmeEntry.CONTENT_URI, values);
                 }
             }
 

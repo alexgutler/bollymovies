@@ -34,6 +34,11 @@
             <meta-data android:name="android.support.PARENT_ACTIVITY" android:value=".MainActivity"/>
         </activity>
 
+        <provider
+            android:authorities="br.com.alexgutler.bollymovies"
+            android:name=".data.FilmesProvider"
+            android:exported="false"/>
+
     </application>
 
 </manifest>
